@@ -14,12 +14,12 @@ namespace ConsoleApp.Services
         {
             try
             {
-
                 var dataSource = new List<DataSourceObject>();
 
                 using (var parser = new TextFieldParser(dataSourcePath))
                 {
                     parser.SetDelimiters(new string[] { ";" });
+                    parser.ReadLine();
 
                     while (!parser.EndOfData)
                     {

@@ -3,12 +3,14 @@ using ConsoleApp.Interfaces;
 using ConsoleApp.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using NLog;
 
 
 namespace ConsoleApp
 {
     internal class Program
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         private static void Main(string[] args)
         {
             var host = CreateHostBuilder(args).Build();
@@ -19,11 +21,16 @@ namespace ConsoleApp
                 try
                 {
                     var parser = services.GetRequiredService<Parser>();
-                    parser.Do("sampleFile1.csv", "dataSource.csv");
+                    parser.Do("sampleFile3.csv", "dataSource.csv");
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("An error occurred: " + ex.Message);
+                    Logger.Error(ex, "Application failed to start");
+                    throw;
+                }
+                finally
+                {
+                    LogManager.Shutdown();
                 }
             }
         }
