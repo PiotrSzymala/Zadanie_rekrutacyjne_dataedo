@@ -6,7 +6,7 @@
     {
         public static string Clear(this string input)
         {
-            return input.Trim().Replace(" ", "").Replace(Environment.NewLine, "");
+            return input.Trim().Replace(Environment.NewLine, "");
         }
     }
 }
