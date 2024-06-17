@@ -33,9 +33,7 @@ namespace ConsoleApp.Services
         {
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine($"{dataSourceObject.Type} '{dataSourceObject.Name} ({dataSourceObject.Title})'");
-            Console.ForegroundColor = ConsoleColor.DarkYellow;
-            Console.WriteLine(dataSourceObject.Description);
-            Console.ResetColor();
+            CheckDescriptionForEmptiness(dataSourceObject, ConsoleColor.DarkYellow, 0);
         }
 
         private void PrintChildren(DataSourceObject parent, IList<DataSourceObject> dataSource)
@@ -64,9 +62,8 @@ namespace ConsoleApp.Services
                 .GroupBy(x => x.Type);
 
             Console.WriteLine($"\t\t{child.Schema}.{child.Name} ({child.Title})");
-            Console.ForegroundColor = ConsoleColor.DarkGray;
-            Console.WriteLine($"\t\t{child.Description}");
-            Console.ResetColor();
+
+            CheckDescriptionForEmptiness(child, ConsoleColor.DarkGray, 2);
 
             foreach (var subChildrenGroup in subChildrenGroups)
             {
@@ -77,11 +74,22 @@ namespace ConsoleApp.Services
                 foreach (var subChild in subChildrenGroup.OrderBy(x => x.Name))
                 {
                     Console.WriteLine($"\t\t\t\t{subChild.Name} ({subChild.Title})");
-                    Console.ForegroundColor = ConsoleColor.DarkGray;
-                    Console.WriteLine($"\t\t\t\t{subChild.Description}");
-                    Console.ResetColor();
+
+                    CheckDescriptionForEmptiness(subChild, ConsoleColor.DarkGray, 4);
                 }
             }
+        }
+
+        private static void CheckDescriptionForEmptiness(DataSourceObject dataSourceObject, ConsoleColor color, int level)
+        {
+            if (!string.IsNullOrEmpty(dataSourceObject.Description))
+            {
+                var tabs = new string('\t', level);
+                Console.ForegroundColor = color;
+                Console.WriteLine($"{tabs}{dataSourceObject.Description}");
+            }
+
+            Console.ResetColor();
         }
     }
 }
