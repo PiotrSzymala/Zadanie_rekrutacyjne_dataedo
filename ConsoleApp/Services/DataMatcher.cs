@@ -38,7 +38,7 @@ namespace ConsoleApp.Services
                 UpdateMatch(match, importedObject);
             }
         }
-        private void UpdateMatch(DataSourceObject match, ImportedObject importedObject)
+        private static void UpdateMatch(DataSourceObject match, ImportedObject importedObject)
         {
             match.Title = importedObject.Title;
             match.Description = importedObject.Description;
