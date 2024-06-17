@@ -11,7 +11,12 @@ namespace ConsoleApp.Services
     {
         public void MatchAndUpdate(IList<DataSourceObject> dataSource, IList<ImportedObject> importedObjects)
         {
-            foreach (var importedObject in importedObjects)
+            foreach (var importedObject in importedObjects.Where(x => x.Type == "GLOSSARY_ENTRY"))
+            {
+                importedObject.Type = "TERM";
+            }
+
+            foreach (var importedObject in importedObjects.Where(x=>x.Type == "TERM"))
             {
                 var match = dataSource.FirstOrDefault(x =>
                     x.Type == importedObject.Type &&
