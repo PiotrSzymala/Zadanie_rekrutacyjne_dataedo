@@ -25,6 +25,7 @@ namespace ConsoleApp.Services
                 while ((line = streamReader.ReadLine()) != null)
                 {
                     var values = line.Split(';');
+                    
                     var importedObject = ParseLine(values, headerMap);
                     importedObjects.Add(importedObject);
                 }
