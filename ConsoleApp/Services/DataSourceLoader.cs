@@ -20,6 +20,7 @@ namespace ConsoleApp.Services
                 using (var parser = new TextFieldParser(dataSourcePath))
                 {
                     parser.SetDelimiters(new string[] { ";" });
+                    parser.ReadLine();
 
                     while (!parser.EndOfData)
                     {
