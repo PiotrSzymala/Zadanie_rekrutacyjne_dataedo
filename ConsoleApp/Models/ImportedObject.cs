@@ -1,4 +1,4 @@
-﻿namespace ConsoleApp
+﻿namespace ConsoleApp.Models
 {
     public class ImportedObject
     {

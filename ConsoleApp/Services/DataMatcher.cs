@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ConsoleApp.Interfaces;
+using ConsoleApp.Models;
 using Microsoft.Extensions.Logging;
 using NLog;
 

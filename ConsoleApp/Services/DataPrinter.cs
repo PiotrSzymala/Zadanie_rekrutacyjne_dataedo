@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using ConsoleApp.Interfaces;
+using ConsoleApp.Models;
 using Microsoft.Extensions.Logging;
 using NLog;
 
