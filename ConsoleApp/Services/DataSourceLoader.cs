@@ -51,11 +51,11 @@ namespace ConsoleApp.Services
         {
             var dataSourceObject = new DataSourceObject
             {
-                Id = int.TryParse(values[0], out int result) ? result : 0,
+                Id = int.TryParse(values[0], out var id) ? id : throw new ArgumentException($"Cannot convert id: {values[0]}"),
                 Type = values[1],
                 Name = values[2],
                 Schema = values[3],
-                ParentId = !string.IsNullOrEmpty(values[4]) ? Convert.ToInt32(values[4]) : 0,
+                ParentId = TryParseParentId(values[4]),
                 ParentType = values[5],
                 Title = values[6],
                 Description = values[7],
@@ -65,6 +65,11 @@ namespace ConsoleApp.Services
             };
 
             return dataSourceObject;
+        }
+
+        private static int TryParseParentId(string value)
+        {
+            return int.TryParse(value, out var parentId) ? parentId : 0;
         }
     }
 }

@@ -12,6 +12,9 @@ namespace ConsoleApp.Services
     public class DataMatcher : IDataMatcher
     {
         private readonly ILogger<DataMatcher> _logger;
+        
+        private const string GlossaryEntry = "GLOSSARY_ENTRY";
+        private const string Term = "TERM";
 
         public DataMatcher(ILogger<DataMatcher> logger)
         {
@@ -22,36 +25,12 @@ namespace ConsoleApp.Services
         {
             try
             {
-                foreach (var importedObject in importedObjects.Where(x => x.Type == "GLOSSARY_ENTRY"))
+                foreach (var importedObject in importedObjects)
                 {
-                    importedObject.Type = "TERM";
-                }
+                    if (importedObject.Type == GlossaryEntry)
+                        importedObject.Type = Term;
 
-                foreach (var importedObject in importedObjects.Where(x => x.Type == "TERM"))
-                {
-                    var match = dataSource.FirstOrDefault(x =>
-                        x.Type == importedObject.Type &&
-                        x.Name == importedObject.Name &&
-                        x.Schema == importedObject.Schema);
-
-                    if (match is null)
-                        continue;
-
-                    if (match.ParentId > 0 && !string.IsNullOrEmpty(importedObject.ParentType))
-                    {
-                        var parent = dataSource.FirstOrDefault(x =>
-                            x.Id == match.ParentId &&
-                            x.Type == match.ParentType);
-
-                        if (parent?.Name != importedObject.ParentName
-                            || parent?.Schema != importedObject.ParentSchema
-                            || parent?.Type != importedObject.ParentType)
-                        {
-                            continue;
-                        }
-                    }
-
-                    UpdateMatch(match, importedObject);
+                    MatchAndProcess(importedObject, dataSource);
                 }
             }
             catch (Exception e)
@@ -60,6 +39,37 @@ namespace ConsoleApp.Services
                 throw;
             }
         }
+        private void MatchAndProcess(ImportedObject importedObject, IList<DataSourceObject> dataSource)
+        {
+            var match = dataSource.FirstOrDefault(x =>
+                x.Type == importedObject.Type &&
+                x.Name == importedObject.Name &&
+                x.Schema == importedObject.Schema);
+
+            if (match == null)
+                return;
+
+            if (!IsValidParent(importedObject, match, dataSource))
+                return;
+
+            UpdateMatch(match, importedObject);
+        }
+
+        private bool IsValidParent(ImportedObject importedObject, DataSourceObject match, IList<DataSourceObject> dataSource)
+        {
+            if (match.ParentId <= 0 || string.IsNullOrEmpty(importedObject.ParentType))
+                return true;
+
+            var parent = dataSource.FirstOrDefault(x =>
+                x.Id == match.ParentId &&
+                x.Type == match.ParentType);
+
+            return parent != null &&
+                   parent.Name == importedObject.ParentName &&
+                   parent.Schema == importedObject.ParentSchema &&
+                   parent.Type == importedObject.ParentType;
+        }
+
         private static void UpdateMatch(DataSourceObject match, ImportedObject importedObject)
         {
             match.Title = importedObject.Title;
