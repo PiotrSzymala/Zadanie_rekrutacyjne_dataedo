@@ -12,5 +12,6 @@ namespace ConsoleApp.Services
         public void WriteLine(string message) => Console.WriteLine(message);
         public void SetForegroundColor(ConsoleColor color) => Console.ForegroundColor = color;
         public void ResetColor() => Console.ResetColor();
+        public void ReadKey() => Console.ReadKey();
     }
 }

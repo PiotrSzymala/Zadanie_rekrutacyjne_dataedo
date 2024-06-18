@@ -27,7 +27,7 @@ namespace ConsoleApp.Services
                     PrintDataSourceObject(dataSourceObject, dataSource);
                 }
 
-                Console.ReadKey();
+                _consoleWriter.ReadKey();
             }
             catch (Exception e)
             {
@@ -50,7 +50,7 @@ namespace ConsoleApp.Services
             }
         }
 
-        private void PrintMainObject(DataSourceObject dataSourceObject)
+        public void PrintMainObject(DataSourceObject dataSourceObject)
         {
             var displayText = string.IsNullOrEmpty(dataSourceObject.Title)
                 ? $"{dataSourceObject.Type} '{dataSourceObject.Name}'"
@@ -140,7 +140,7 @@ namespace ConsoleApp.Services
             _consoleWriter.ResetColor();
         }
 
-        private void CheckDescriptionForEmptiness(DataSourceObject dataSourceObject, ConsoleColor color, int indentationLevel)
+        public void CheckDescriptionForEmptiness(DataSourceObject dataSourceObject, ConsoleColor color, int indentationLevel)
         {
             if (!string.IsNullOrEmpty(dataSourceObject.Description))
                 PrintWithColor(dataSourceObject.Description, color, indentationLevel);

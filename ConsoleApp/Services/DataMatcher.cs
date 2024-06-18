@@ -64,13 +64,15 @@ namespace ConsoleApp.Services
                 x.Id == match.ParentId &&
                 x.Type == match.ParentType);
 
-            return parent != null &&
-                   parent.Name == importedObject.ParentName &&
-                   parent.Schema == importedObject.ParentSchema &&
-                   parent.Type == importedObject.ParentType;
+            var isValidParent = parent != null &&
+                               parent.Name == importedObject.ParentName &&
+                               parent.Schema == importedObject.ParentSchema &&
+                               parent.Type == importedObject.ParentType;
+
+            return isValidParent;
         }
 
-        private static void UpdateMatch(DataSourceObject match, ImportedObject importedObject)
+        public static void UpdateMatch(DataSourceObject match, ImportedObject importedObject)
         {
             match.Title = importedObject.Title;
             match.Description = importedObject.Description;
