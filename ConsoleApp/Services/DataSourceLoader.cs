@@ -4,12 +4,21 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ConsoleApp.Interfaces;
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualBasic.FileIO;
+using NLog;
 
 namespace ConsoleApp.Services
 {
-    internal class DataSourceLoader : IDataSourceLoader
+    public class DataSourceLoader : IDataSourceLoader
     {
+        private readonly ILogger<DataSourceLoader> _logger;
+
+        public DataSourceLoader(ILogger<DataSourceLoader> logger)
+        {
+            _logger = logger;
+        }
+
         public IList<DataSourceObject> Load(string dataSourcePath)
         {
             try
@@ -24,7 +33,7 @@ namespace ConsoleApp.Services
                     while (!parser.EndOfData)
                     {
                         var values = parser.ReadFields();
-                       
+
                         var dataSourceObject = CreateDataSourceObject(values);
                         dataSource.Add(dataSourceObject);
                     }
@@ -33,7 +42,7 @@ namespace ConsoleApp.Services
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                _logger.LogError(e, "There was an error processing the data: ");
                 throw;
             }
         }
