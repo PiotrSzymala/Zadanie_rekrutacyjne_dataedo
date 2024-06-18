@@ -25,7 +25,7 @@ namespace ConsoleApp.Services
                 {
                     PrintDataSourceObject(dataSourceObject, dataSource);
                 }
-                
+
                 Console.ReadKey();
             }
             catch (Exception e)
@@ -48,13 +48,13 @@ namespace ConsoleApp.Services
             }
         }
 
-        private  void PrintMainObject(DataSourceObject dataSourceObject)
+        private void PrintMainObject(DataSourceObject dataSourceObject)
         {
-            PrintWithColor($"{dataSourceObject.Type} '{dataSourceObject.Name} ({dataSourceObject.Title})'", ConsoleColor.Yellow,0);
+            PrintWithColor($"{dataSourceObject.Type} '{dataSourceObject.Name} ({dataSourceObject.Title})'", ConsoleColor.Yellow, 0);
             CheckDescriptionForEmptiness(dataSourceObject, ConsoleColor.DarkYellow, 0);
         }
 
-        private  void PrintChildren(DataSourceObject parent, IList<DataSourceObject> dataSource)
+        private void PrintChildren(DataSourceObject parent, IList<DataSourceObject> dataSource)
         {
             var childrenGroups = dataSource
                 .Where(x => x.ParentId == parent.Id && x.ParentType == parent.Type)
@@ -70,13 +70,13 @@ namespace ConsoleApp.Services
             }
         }
 
-        private  void PrintSubChildren(DataSourceObject child, IList<DataSourceObject> dataSource)
+        private void PrintSubChildren(DataSourceObject child, IList<DataSourceObject> dataSource)
         {
             var subChildrenGroups = dataSource
                 .Where(x => x.ParentId == child.Id && x.ParentType == child.Type)
                 .GroupBy(x => x.Type);
 
-            PrintWithColor($"{child.Schema}.{child.Name} ({child.Title})",ConsoleColor.White,2);
+            PrintWithColor($"{child.Schema}.{child.Name} ({child.Title})", ConsoleColor.White, 2);
             CheckDescriptionForEmptiness(child, ConsoleColor.DarkGray, 2);
 
             foreach (var subChildrenGroup in subChildrenGroups)
@@ -91,18 +91,18 @@ namespace ConsoleApp.Services
             }
         }
 
-        private  void CheckDescriptionForEmptiness(DataSourceObject dataSourceObject, ConsoleColor color, int indentationLevel)
+        private void CheckDescriptionForEmptiness(DataSourceObject dataSourceObject, ConsoleColor color, int indentationLevel)
         {
             if (!string.IsNullOrEmpty(dataSourceObject.Description))
-                PrintWithColor(dataSourceObject.Description, color,indentationLevel);
+                PrintWithColor(dataSourceObject.Description, color, indentationLevel);
 
             _consoleWriter.ResetColor();
         }
 
-        private  void PrintWithColor(string message, ConsoleColor color, int indentationLevel)
+        private void PrintWithColor(string message, ConsoleColor color, int indentationLevel)
         {
             var indentation = new string('\t', indentationLevel);
-            
+
             _consoleWriter.SetForegroundColor(color);
             _consoleWriter.WriteLine($"{indentation}{message}");
             _consoleWriter.ResetColor();
