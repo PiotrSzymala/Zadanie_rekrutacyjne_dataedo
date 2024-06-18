@@ -10,31 +10,31 @@ using NLog.Extensions.Logging;
 
 namespace ConsoleApp
 {
-    internal class Program
+    public class Program
     {
+        private static ILogger<Program> _logger;
         private static void Main(string[] args)
         {
             var host = CreateHostBuilder(args).Build();
+            _logger = host.Services.GetRequiredService<ILogger<Program>>();
 
-            using (var scope = host.Services.CreateScope())
+            try
             {
-                var services = scope.ServiceProvider;
-                var logger = services.GetRequiredService<ILogger<Program>>();
-
-                try
+                using (var scope = host.Services.CreateScope())
                 {
+                    var services = scope.ServiceProvider;
                     var parser = services.GetRequiredService<Parser>();
-
                     parser.Do("sampleFile1.csv", "dataSource.csv");
                 }
-                catch (Exception ex)
-                {
-                    logger.LogError(ex, $"There was an error processing the data: ");
-                }
-                finally
-                {
-                    NLog.LogManager.Shutdown();
-                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical(ex, "Critical error occurred while setting up the application environment.");
+
+            }
+            finally
+            {
+                NLog.LogManager.Shutdown();
             }
         }
 
