@@ -53,6 +53,7 @@ namespace ConsoleApp
         public static void ConfigureServices(IServiceCollection services)
         {
             services.AddScoped<IConsoleWriter, ConsoleWriter>();
+            services.AddScoped<IFileReader, FileReader>();
 
             services.AddScoped<IDataImporter, DataImporter>();
             services.AddScoped<IDataSourceLoader, DataSourceLoader>();

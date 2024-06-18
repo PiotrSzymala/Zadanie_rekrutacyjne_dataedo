@@ -11,5 +11,6 @@ namespace ConsoleApp.Interfaces
         void WriteLine(string message);
         void SetForegroundColor(ConsoleColor color);
         void ResetColor();
+        void ReadKey();
     }
 }

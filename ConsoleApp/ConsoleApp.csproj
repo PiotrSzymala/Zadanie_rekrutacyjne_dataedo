@@ -167,8 +167,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Interfaces\IConsoleWriter.cs" />
+    <Compile Include="Interfaces\IFileReader.cs" />
     <Compile Include="Models\DataSourceObject.cs" />
     <Compile Include="Services\ConsoleWriter.cs" />
+    <Compile Include="Services\FileReader.cs" />
     <Compile Include="Utilities\Extensions.cs" />
     <Compile Include="Models\ImportedObject.cs" />
     <Compile Include="Interfaces\IDataImporter.cs" />
