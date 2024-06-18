@@ -10,10 +10,11 @@ namespace ConsoleApp.Services
     public class DataPrinter : IDataPrinter
     {
         private readonly ILogger<DataPrinter> _logger;
-
-        public DataPrinter(ILogger<DataPrinter> logger)
+        private readonly IConsoleWriter _consoleWriter;
+        public DataPrinter(ILogger<DataPrinter> logger, IConsoleWriter consoleWriter)
         {
             _logger = logger;
+            _consoleWriter = consoleWriter;
         }
 
         public void Print(IList<DataSourceObject> dataSource)
@@ -24,6 +25,7 @@ namespace ConsoleApp.Services
                 {
                     PrintDataSourceObject(dataSourceObject, dataSource);
                 }
+                
                 Console.ReadKey();
             }
             catch (Exception e)
@@ -46,14 +48,13 @@ namespace ConsoleApp.Services
             }
         }
 
-        private void PrintMainObject(DataSourceObject dataSourceObject)
+        private  void PrintMainObject(DataSourceObject dataSourceObject)
         {
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine($"{dataSourceObject.Type} '{dataSourceObject.Name} ({dataSourceObject.Title})'");
+            PrintWithColor($"{dataSourceObject.Type} '{dataSourceObject.Name} ({dataSourceObject.Title})'", ConsoleColor.Yellow,0);
             CheckDescriptionForEmptiness(dataSourceObject, ConsoleColor.DarkYellow, 0);
         }
 
-        private void PrintChildren(DataSourceObject parent, IList<DataSourceObject> dataSource)
+        private  void PrintChildren(DataSourceObject parent, IList<DataSourceObject> dataSource)
         {
             var childrenGroups = dataSource
                 .Where(x => x.ParentId == parent.Id && x.ParentType == parent.Type)
@@ -61,10 +62,7 @@ namespace ConsoleApp.Services
 
             foreach (var childrenGroup in childrenGroups)
             {
-                Console.ForegroundColor = ConsoleColor.DarkCyan;
-                Console.WriteLine($"\t{childrenGroup.Key}S ({childrenGroup.Count()}):");
-                Console.ResetColor();
-
+                PrintWithColor($"{childrenGroup.Key}S ({childrenGroup.Count()}):", ConsoleColor.DarkCyan, 1);
                 foreach (var child in childrenGroup.OrderBy(x => x.Name))
                 {
                     PrintSubChildren(child, dataSource);
@@ -72,41 +70,42 @@ namespace ConsoleApp.Services
             }
         }
 
-        private void PrintSubChildren(DataSourceObject child, IList<DataSourceObject> dataSource)
+        private  void PrintSubChildren(DataSourceObject child, IList<DataSourceObject> dataSource)
         {
             var subChildrenGroups = dataSource
                 .Where(x => x.ParentId == child.Id && x.ParentType == child.Type)
                 .GroupBy(x => x.Type);
 
-            Console.WriteLine($"\t\t{child.Schema}.{child.Name} ({child.Title})");
-
+            PrintWithColor($"{child.Schema}.{child.Name} ({child.Title})",ConsoleColor.White,2);
             CheckDescriptionForEmptiness(child, ConsoleColor.DarkGray, 2);
 
             foreach (var subChildrenGroup in subChildrenGroups)
             {
-                Console.ForegroundColor = ConsoleColor.DarkCyan;
-                Console.WriteLine($"\t\t\t{subChildrenGroup.Key}S ({subChildrenGroup.Count()}):");
-                Console.ResetColor();
+                PrintWithColor($"{subChildrenGroup.Key}S ({subChildrenGroup.Count()}):", ConsoleColor.DarkCyan, 3);
 
                 foreach (var subChild in subChildrenGroup.OrderBy(x => x.Name))
                 {
-                    Console.WriteLine($"\t\t\t\t{subChild.Name} ({subChild.Title})");
-
+                    PrintWithColor($"{subChild.Name} ({subChild.Title})", ConsoleColor.White, 4);
                     CheckDescriptionForEmptiness(subChild, ConsoleColor.DarkGray, 4);
                 }
             }
         }
 
-        private static void CheckDescriptionForEmptiness(DataSourceObject dataSourceObject, ConsoleColor color, int level)
+        private  void CheckDescriptionForEmptiness(DataSourceObject dataSourceObject, ConsoleColor color, int indentationLevel)
         {
             if (!string.IsNullOrEmpty(dataSourceObject.Description))
-            {
-                var tabs = new string('\t', level);
-                Console.ForegroundColor = color;
-                Console.WriteLine($"{tabs}{dataSourceObject.Description}");
-            }
+                PrintWithColor(dataSourceObject.Description, color,indentationLevel);
 
-            Console.ResetColor();
+            _consoleWriter.ResetColor();
+        }
+
+        private  void PrintWithColor(string message, ConsoleColor color, int indentationLevel)
+        {
+            var indentation = new string('\t', indentationLevel);
+            
+            _consoleWriter.SetForegroundColor(color);
+            _consoleWriter.WriteLine($"{indentation}{message}");
+            _consoleWriter.ResetColor();
         }
     }
 }
