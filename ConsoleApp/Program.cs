@@ -3,6 +3,9 @@ using ConsoleApp.Interfaces;
 using ConsoleApp.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using NLog;
+using NLog.Extensions.Logging;
 
 
 namespace ConsoleApp
@@ -16,21 +19,36 @@ namespace ConsoleApp
             using (var scope = host.Services.CreateScope())
             {
                 var services = scope.ServiceProvider;
+                var logger = services.GetRequiredService<ILogger<Program>>();
+
                 try
                 {
                     var parser = services.GetRequiredService<Parser>();
+
                     parser.Do("sampleFile1.csv", "dataSource.csv");
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("An error occurred: " + ex.Message);
+                    logger.LogError(ex, $"There was an error processing the data: ");
+                }
+                finally
+                {
+                    NLog.LogManager.Shutdown();
                 }
             }
         }
+
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
                 .ConfigureServices((_, services) =>
-                    ConfigureServices(services));
+                    ConfigureServices(services))
+                .ConfigureLogging(logging =>
+                {
+                    logging.ClearProviders();
+                    logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
+                    logging.AddNLog();
+                });
+
 
         public static void ConfigureServices(IServiceCollection services)
         {
@@ -39,6 +57,7 @@ namespace ConsoleApp
             services.AddScoped<IDataMatcher, DataMatcher>();
             services.AddScoped<IDataPrinter, DataPrinter>();
 
+            services.AddLogging();
             services.AddScoped<Parser>();
         }
     }
