@@ -2,6 +2,7 @@
 
 namespace ConsoleApp
 {
+    using Microsoft.Extensions.Logging;
     using Microsoft.VisualBasic.FileIO;
     using System;
     using System.Collections.Generic;
@@ -10,13 +11,16 @@ namespace ConsoleApp
 
     public class Parser
     {
+        private readonly ILogger<Parser> _logger;
+
         private readonly IDataImporter _dataImporter;
         private readonly IDataSourceLoader _dataSourceLoader;
         private readonly IDataMatcher _dataMatcher;
         private readonly IDataPrinter _dataPrinter;
 
-        public Parser(IDataImporter dataImporter, IDataSourceLoader dataSourceLoader, IDataMatcher dataMatcher, IDataPrinter dataPrinter)
+        public Parser(ILogger<Parser> logger, IDataImporter dataImporter, IDataSourceLoader dataSourceLoader, IDataMatcher dataMatcher, IDataPrinter dataPrinter)
         {
+            _logger = logger;
             _dataImporter = dataImporter;
             _dataSourceLoader = dataSourceLoader;
             _dataMatcher = dataMatcher;
@@ -34,8 +38,7 @@ namespace ConsoleApp
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
-                throw;
+                _logger.LogError(e, $"Error occurred while processing {fileToImport} and {dataSource}");
             }
         }
     }
