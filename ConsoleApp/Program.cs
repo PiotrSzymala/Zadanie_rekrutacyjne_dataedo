@@ -34,10 +34,15 @@ namespace ConsoleApp
             }
             finally
             {
-                NLog.LogManager.Shutdown();
+                LogManager.Shutdown();
             }
         }
 
+        /// <summary>
+        /// Creates and configures a host builder with the specified command-line arguments.
+        /// </summary>
+        /// <param name="args">The command-line arguments.</param>
+        /// <returns>An <see cref="IHostBuilder"/> configured with the application's services and logging.</returns>
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
                 .ConfigureServices((_, services) =>
@@ -50,6 +55,10 @@ namespace ConsoleApp
                 });
 
 
+        /// <summary>
+        /// Configures the application's services.
+        /// </summary>
+        /// <param name="services">The service collection to configure.</param>
         public static void ConfigureServices(IServiceCollection services)
         {
             services.AddScoped<IConsoleWriter, ConsoleWriter>();

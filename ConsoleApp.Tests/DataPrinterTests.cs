@@ -1,4 +1,5 @@
 using ConsoleApp.Interfaces;
+using ConsoleApp.Models;
 using ConsoleApp.Services;
 using Microsoft.Extensions.Logging;
 using Moq;

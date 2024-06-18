@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using ConsoleApp.Interfaces;
+using ConsoleApp.Models;
+using ConsoleApp.Utilities;
 using Microsoft.Extensions.Logging;
 using NLog;
 
@@ -17,6 +19,12 @@ namespace ConsoleApp.Services
             _logger = logger;
         }
 
+        /// <summary>
+        /// Imports data from a specified CSV file.
+        /// </summary>
+        /// <param name="filePath">The path to the CSV file.</param>
+        /// <returns>A list of <see cref="ImportedObject"/> representing the imported data.</returns>
+        /// <exception cref="Exception">Thrown when there is an error processing the data.</exception>
         public IList<ImportedObject> Import(string filePath)
         {
             try
@@ -60,6 +68,11 @@ namespace ConsoleApp.Services
             }
         }
 
+        /// <summary>
+        /// Parses the header line of the CSV file to create a map of header names to their respective indices.
+        /// </summary>
+        /// <param name="headerLine">The header line of the CSV file.</param>
+        /// <returns>A dictionary mapping header names to their indices.</returns>
         private static Dictionary<string, int> ParseHeaders(string headerLine)
         {
             return headerLine.Split(';')
@@ -67,6 +80,12 @@ namespace ConsoleApp.Services
                 .ToDictionary(h => h.Header, h => h.Index);
         }
 
+        /// <summary>
+        /// Parses a line of values from the CSV file into an <see cref="ImportedObject"/>.
+        /// </summary>
+        /// <param name="values">The values from the CSV line.</param>
+        /// <param name="headerMap">The map of header names to their indices.</param>
+        /// <returns>An <see cref="ImportedObject"/> representing the data from the line.</returns>
         private static ImportedObject ParseLine(IReadOnlyList<string> values,
             IReadOnlyDictionary<string, int> headerMap)
         {
@@ -86,6 +105,12 @@ namespace ConsoleApp.Services
             };
         }
 
+        /// <summary>
+        /// Retrieves the index of a header key from the map, returning -1 if the key is not found.
+        /// </summary>
+        /// <param name="map">The map of header names to indices.</param>
+        /// <param name="key">The header key to find.</param>
+        /// <returns>The index of the header key, or -1 if the key is not found.</returns>
         private static int GetIndexSafely(IReadOnlyDictionary<string, int> map, string key)
         {
             if (map.TryGetValue(key, out var safely))
@@ -96,11 +121,22 @@ namespace ConsoleApp.Services
             return -1;
         }
 
+        /// <summary>
+        /// Retrieves the value from the values list at the specified index, returning an empty string if the index is out of range.
+        /// </summary>
+        /// <param name="values">The list of values from the CSV line.</param>
+        /// <param name="index">The index of the value to retrieve.</param>
+        /// <returns>The value at the specified index, or an empty string if the index is out of range.</returns>
         private static string GetValueSafely(IReadOnlyList<string> values, int index)
         {
             return index >= 0 && index < values.Count ? values[index].Clear() : "";
         }
 
+        /// <summary>
+        /// Gets a list of property names that have empty values in the specified <see cref="ImportedObject"/>.
+        /// </summary>
+        /// <param name="importedObject">The <see cref="ImportedObject"/> to check.</param>
+        /// <returns>A list of property names with empty values.</returns>
         private static List<string> GetEmptyProperties(ImportedObject importedObject)
         {
             return importedObject.GetType().GetProperties()

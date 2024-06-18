@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using ConsoleApp.Interfaces;
+using ConsoleApp.Models;
 using Microsoft.Extensions.Logging;
 using NLog;
 
@@ -18,6 +19,10 @@ namespace ConsoleApp.Services
             _consoleWriter = consoleWriter;
         }
 
+        /// <summary>
+        /// Prints the data source objects to the console.
+        /// </summary>
+        /// <param name="dataSource">The list of data source objects to print.</param>
         public void Print(IList<DataSourceObject> dataSource)
         {
             try
@@ -36,6 +41,11 @@ namespace ConsoleApp.Services
             }
         }
 
+        /// <summary>
+        /// Prints a data source object and its children to the console.
+        /// </summary>
+        /// <param name="dataSourceObject">The data source object to print.</param>
+        /// <param name="dataSource">The list of all data source objects.</param>
         private void PrintDataSourceObject(DataSourceObject dataSourceObject, IList<DataSourceObject> dataSource)
         {
             switch (dataSourceObject.Type)
@@ -50,6 +60,10 @@ namespace ConsoleApp.Services
             }
         }
 
+        /// <summary>
+        /// Prints the main object to the console.
+        /// </summary>
+        /// <param name="dataSourceObject">The data source object to print.</param>
         public void PrintMainObject(DataSourceObject dataSourceObject)
         {
             var displayText = string.IsNullOrEmpty(dataSourceObject.Title)
@@ -60,6 +74,11 @@ namespace ConsoleApp.Services
             CheckDescriptionForEmptiness(dataSourceObject, ConsoleColor.DarkYellow, 0);
         }
 
+        /// <summary>
+        /// Prints the children of a parent object to the console.
+        /// </summary>
+        /// <param name="parent">The parent object whose children to print.</param>
+        /// <param name="dataSource">The list of all data source objects.</param>
         private void PrintChildren(DataSourceObject parent, IList<DataSourceObject> dataSource)
         {
             var childrenGroups = GetChildrenGroups(parent, dataSource);
@@ -74,6 +93,12 @@ namespace ConsoleApp.Services
             }
         }
 
+        /// <summary>
+        /// Groups the children of a parent object by type.
+        /// </summary>
+        /// <param name="parent">The parent object whose children to group.</param>
+        /// <param name="dataSource">The list of all data source objects.</param>
+        /// <returns>A collection of grouped children.</returns>
         private static IEnumerable<IGrouping<string, DataSourceObject>> GetChildrenGroups(DataSourceObject parent, IList<DataSourceObject> dataSource)
         {
             return dataSource
@@ -81,6 +106,11 @@ namespace ConsoleApp.Services
                 .GroupBy(x => x.Type);
         }
 
+        /// <summary>
+        /// Prints the sub-children of a child object to the console.
+        /// </summary>
+        /// <param name="child">The child object whose sub-children to print.</param>
+        /// <param name="dataSource">The list of all data source objects.</param>
         private void PrintSubChildren(DataSourceObject child, IList<DataSourceObject> dataSource)
         {
             var subChildrenGroups = GetSubChildrenGroups(child, dataSource);
@@ -98,6 +128,12 @@ namespace ConsoleApp.Services
             }
         }
 
+        /// <summary>
+        /// Groups the sub-children of a child object by type.
+        /// </summary>
+        /// <param name="child">The child object whose sub-children to group.</param>
+        /// <param name="dataSource">The list of all data source objects.</param>
+        /// <returns>A collection of grouped sub-children.</returns>
         private IEnumerable<IGrouping<string, DataSourceObject>> GetSubChildrenGroups(DataSourceObject child, IList<DataSourceObject> dataSource)
         {
             return dataSource
@@ -105,6 +141,11 @@ namespace ConsoleApp.Services
                 .GroupBy(x => x.Type);
         }
 
+        /// <summary>
+        /// Builds the display text for a child node.
+        /// </summary>
+        /// <param name="child">The child object to build the display text for.</param>
+        /// <returns>A <see cref="StringBuilder"/> containing the display text.</returns>
         private StringBuilder BuildChildNode(DataSourceObject child)
         {
             var childNodeStringBuilder = new StringBuilder();
@@ -120,17 +161,34 @@ namespace ConsoleApp.Services
             return childNodeStringBuilder;
         }
 
+        /// <summary>
+        /// Prints a node with its description to the console.
+        /// </summary>
+        /// <param name="displayText">The display text of the node.</param>
+        /// <param name="level">The indentation level of the node.</param>
+        /// <param name="obj">The data source object representing the node.</param>
         private void PrintNodeWithDescription(string displayText, int level, DataSourceObject obj)
         {
             PrintWithColor(displayText, ConsoleColor.Gray, level);
             CheckDescriptionForEmptiness(obj, ConsoleColor.DarkGray, level);
         }
 
+        /// <summary>
+        /// Builds the display text for a data source object.
+        /// </summary>
+        /// <param name="obj">The data source object to build the display text for.</param>
+        /// <returns>The display text.</returns>
         private string BuildDisplayText(DataSourceObject obj)
         {
             return string.IsNullOrEmpty(obj.Title) ? obj.Name : $"{obj.Name} ({obj.Title})";
         }
 
+        /// <summary>
+        /// Prints a message with a specified color and indentation level to the console.
+        /// </summary>
+        /// <param name="message">The message to print.</param>
+        /// <param name="color">The color to use for the message.</param>
+        /// <param name="indentationLevel">The indentation level of the message.</param>
         private void PrintWithColor(string message, ConsoleColor color, int indentationLevel)
         {
             var indentation = new string('\t', indentationLevel);
@@ -140,6 +198,12 @@ namespace ConsoleApp.Services
             _consoleWriter.ResetColor();
         }
 
+        /// <summary>
+        /// Checks if the description of a data source object is empty and prints it with a specified color and indentation level to the console.
+        /// </summary>
+        /// <param name="dataSourceObject">The data source object to check.</param>
+        /// <param name="color">The color to use for the description.</param>
+        /// <param name="indentationLevel">The indentation level of the description.</param>
         public void CheckDescriptionForEmptiness(DataSourceObject dataSourceObject, ConsoleColor color, int indentationLevel)
         {
             if (!string.IsNullOrEmpty(dataSourceObject.Description))

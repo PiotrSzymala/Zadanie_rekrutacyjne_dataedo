@@ -23,7 +23,6 @@ namespace ConsoleApp.Services
             }
             catch (Exception ex)
             {
-                // Log and rethrow, or handle exception as necessary
                 throw new IOException($"Failed to read from the file: {path}", ex);
             }
         }
