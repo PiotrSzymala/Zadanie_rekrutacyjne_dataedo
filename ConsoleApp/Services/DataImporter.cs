@@ -2,36 +2,62 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using ConsoleApp.Interfaces;
+using Microsoft.Extensions.Logging;
+using NLog;
 
 namespace ConsoleApp.Services
 {
     public class DataImporter : IDataImporter
     {
+        private readonly ILogger<DataImporter> _logger;
+
+        public DataImporter(ILogger<DataImporter> logger)
+        {
+            _logger = logger;
+        }
+
         public IList<ImportedObject> Import(string filePath)
         {
-            var importedObjects = new List<ImportedObject>();
-            using (var streamReader = new StreamReader(filePath))
+            try
             {
-
-                string headerLine = streamReader.ReadLine();
-
-                var headerMap = ParseHeaders(headerLine);
-
-                string line;
-
-                while ((line = streamReader.ReadLine()) != null)
+                var importedObjects = new List<ImportedObject>();
+                using (var streamReader = new StreamReader(filePath))
                 {
-                    var values = line.Split(';');
-                    
-                    var importedObject = ParseLine(values, headerMap);
-                    importedObjects.Add(importedObject);
-                }
-            }
 
-            return importedObjects;
+                    var headerLine = streamReader.ReadLine();
+
+                    var headerMap = ParseHeaders(headerLine);
+
+                    string line;
+
+                    var lineCounter = 1;
+
+
+                    while ((line = streamReader.ReadLine()) != null)
+                    {
+                        var values = line.Split(';');
+
+                        var importedObject = ParseLine(values, headerMap);
+
+                        var emptyProperties = GetEmptyProperties(importedObject);
+
+                        if (emptyProperties.Any())
+                            _logger.LogWarning($"Empty fields found in line {lineCounter}: {string.Join(", ", emptyProperties)}");
+
+                        importedObjects.Add(importedObject);
+
+                        lineCounter++;
+                    }
+                }
+
+                return importedObjects;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "There was an error processing the data: ");
+                throw;
+            }
         }
 
         private static Dictionary<string, int> ParseHeaders(string headerLine)
@@ -73,6 +99,14 @@ namespace ConsoleApp.Services
         private static string GetValueSafely(IReadOnlyList<string> values, int index)
         {
             return index >= 0 && index < values.Count ? values[index].Clear() : "";
+        }
+
+        private static List<string> GetEmptyProperties(ImportedObject importedObject)
+        {
+            return importedObject.GetType().GetProperties()
+                .Where(prop => string.IsNullOrEmpty(prop.GetValue(importedObject) as string))
+                .Select(prop => prop.Name)
+                .ToList();
         }
     }
 }

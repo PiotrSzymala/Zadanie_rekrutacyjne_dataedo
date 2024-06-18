@@ -2,18 +2,35 @@
 using System.Collections.Generic;
 using System.Linq;
 using ConsoleApp.Interfaces;
+using Microsoft.Extensions.Logging;
+using NLog;
 
 namespace ConsoleApp.Services
 {
-    internal class DataPrinter : IDataPrinter
+    public class DataPrinter : IDataPrinter
     {
+        private readonly ILogger<DataPrinter> _logger;
+
+        public DataPrinter(ILogger<DataPrinter> logger)
+        {
+            _logger = logger;
+        }
+
         public void Print(IList<DataSourceObject> dataSource)
         {
-            foreach (var dataSourceObject in dataSource.OrderBy(x => x.Type))
+            try
             {
-                PrintDataSourceObject(dataSourceObject, dataSource);
+                foreach (var dataSourceObject in dataSource.OrderBy(x => x.Type))
+                {
+                    PrintDataSourceObject(dataSourceObject, dataSource);
+                }
+                Console.ReadKey();
             }
-            Console.ReadKey();
+            catch (Exception e)
+            {
+                _logger.LogError(e, "There was an error processing the data: ");
+                throw;
+            }
         }
 
         private void PrintDataSourceObject(DataSourceObject dataSourceObject, IList<DataSourceObject> dataSource)

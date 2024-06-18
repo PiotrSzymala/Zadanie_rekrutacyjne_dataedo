@@ -4,38 +4,60 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ConsoleApp.Interfaces;
+using Microsoft.Extensions.Logging;
+using NLog;
 
 namespace ConsoleApp.Services
 {
-    internal class DataMatcher : IDataMatcher
+    public class DataMatcher : IDataMatcher
     {
+        private readonly ILogger<DataMatcher> _logger;
+
+        public DataMatcher(ILogger<DataMatcher> logger)
+        {
+            _logger = logger;
+        }
+
         public void MatchAndUpdate(IList<DataSourceObject> dataSource, IList<ImportedObject> importedObjects)
         {
-            foreach (var importedObject in importedObjects)
+            try
             {
-                var match = dataSource.FirstOrDefault(x =>
-                    x.Type == importedObject.Type &&
-                    x.Name == importedObject.Name &&
-                    x.Schema == importedObject.Schema);
-
-                if (match is null)
-                    continue;
-
-                if (match.ParentId > 0 && !string.IsNullOrEmpty(importedObject.ParentType))
+                foreach (var importedObject in importedObjects.Where(x => x.Type == "GLOSSARY_ENTRY"))
                 {
-                    var parent = dataSource.FirstOrDefault(x =>
-                        x.Id == match.ParentId &&
-                        x.Type == match.ParentType);
-
-                    if (parent?.Name != importedObject.ParentName
-                        || parent?.Schema != importedObject.ParentSchema
-                        || parent?.Type != importedObject.ParentType)
-                    {
-                        continue;
-                    }
+                    importedObject.Type = "TERM";
                 }
 
-                UpdateMatch(match, importedObject);
+                foreach (var importedObject in importedObjects.Where(x => x.Type == "TERM"))
+                {
+                    var match = dataSource.FirstOrDefault(x =>
+                        x.Type == importedObject.Type &&
+                        x.Name == importedObject.Name &&
+                        x.Schema == importedObject.Schema);
+
+                    if (match is null)
+                        continue;
+
+                    if (match.ParentId > 0 && !string.IsNullOrEmpty(importedObject.ParentType))
+                    {
+                        var parent = dataSource.FirstOrDefault(x =>
+                            x.Id == match.ParentId &&
+                            x.Type == match.ParentType);
+
+                        if (parent?.Name != importedObject.ParentName
+                            || parent?.Schema != importedObject.ParentSchema
+                            || parent?.Type != importedObject.ParentType)
+                        {
+                            continue;
+                        }
+                    }
+
+                    UpdateMatch(match, importedObject);
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "There was an error processing the data: ");
+                throw;
             }
         }
         private static void UpdateMatch(DataSourceObject match, ImportedObject importedObject)
