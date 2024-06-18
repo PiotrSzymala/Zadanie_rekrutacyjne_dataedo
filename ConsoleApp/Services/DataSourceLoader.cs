@@ -21,6 +21,12 @@ namespace ConsoleApp.Services
             _fileReader = fileReader;
         }
 
+        /// <summary>
+        /// Loads data source objects from the specified file path.
+        /// </summary>
+        /// <param name="dataSourcePath">The path to the data source file.</param>
+        /// <returns>A list of <see cref="DataSourceObject"/> representing the loaded data.</returns>
+        /// <exception cref="Exception">Thrown when there is an error processing the data.</exception>
         public IList<DataSourceObject> Load(string dataSourcePath)
         {
             try
@@ -45,6 +51,12 @@ namespace ConsoleApp.Services
             }
         }
 
+        /// <summary>
+        /// Creates a data source object from a list of values.
+        /// </summary>
+        /// <param name="values">The values to create the data source object from.</param>
+        /// <returns>A <see cref="DataSourceObject"/> created from the values.</returns>
+        /// <exception cref="ArgumentException">Thrown when the data is malformed or cannot be converted.</exception>
         private static DataSourceObject CreateDataSourceObject(IReadOnlyList<string> values)
         {
             if(values.Count <11)
@@ -68,6 +80,11 @@ namespace ConsoleApp.Services
             return dataSourceObject;
         }
 
+        /// <summary>
+        /// Tries to parse the parent ID from a string.
+        /// </summary>
+        /// <param name="value">The string value to parse.</param>
+        /// <returns>The parsed parent ID, or 0 if the parsing fails.</returns>
         private static int TryParseParentId(string value)
         {
             return int.TryParse(value, out var parentId) ? parentId : 0;
