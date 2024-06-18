@@ -20,7 +20,6 @@ namespace ConsoleApp.Services
         {
             try
             {
-                throw new Exception("test loggera");
                 foreach (var dataSourceObject in dataSource.OrderBy(x => x.Type))
                 {
                     PrintDataSourceObject(dataSourceObject, dataSource);
